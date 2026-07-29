@@ -1,0 +1,17 @@
+{
+  "tenancy_ocid": "ocid1.tenancy.oc1..replace_me",
+  "parent_compartment_ocid": "",
+  "region": "us-ashburn-1",
+  "region_key": "IAD",
+  "resource_label": "PROD",
+  "home_compartment_name": "OCI-SCCA-LZ-Home",
+  "vdms_compartment_name": "OCI-SCCA-LZ-VDMS",
+  "vdss_compartment_name": "OCI-SCCA-LZ-VDSS",
+  "enable_logging_compartment": "true",
+  "logging_compartment_name": "OCI-SCCA-LZ-Logging",
+  "enable_backup_compartment": "true",
+  "backup_compartment_name": "OCI-SCCA-LZ-IAC-TF-Configbackup",
+  "workload_compartment_name_prefix": "OCI-SCCA-LZ-WRK",
+  "workload_postfixes": "[\"SWR1\",\"SWR2\"]",
+  "enable_compartment_delete": "false"
+}

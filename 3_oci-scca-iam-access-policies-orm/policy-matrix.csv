@@ -1,0 +1,21 @@
+group,default_access,scope,important_exclusions
+VDMS-Platform-Admins,"Manage Bastion, alarms, notifications, events, vulnerability scanning, and logging; read compute metadata and metrics",VDMS only,"No all-resources; no IAM; no workload resources; no network ownership"
+VDSS-Security-Admins,"Manage Cloud Guard for the SCCA tree plus Network Firewall, WAF, load balancers, logging, and alarms; use existing VDSS networks",SCCA home tree and VDSS,"No all-resources; no IAM policies; no keys or secrets; no network ownership"
+Network-Admins,"Manage virtual-network-family and DNS; read endpoint metadata",SCCA home tree,"No compute, database, storage, IAM, firewall-policy, or application administration"
+Security-Auditors,"Inspect inventory; read Cloud Guard, logs, audit, VSS, and threat intelligence",SCCA home tree,No use or manage verbs
+ORM-Deployment-Admins,"Use stacks; read jobs; create PLAN and APPLY jobs only",Exact ORM compartment,"No DESTROY jobs; no policy administration; no automatic downstream resource permissions"
+AD-Admins,Read identity domain metadata,VDMS only,"No user/group mutation; no OCI resource administration; domain application roles handled later"
+ENTOPS,"Inspect inventory; read monitoring, notifications, events, and work requests",SCCA home tree,No resource mutation
+CLOUDOPS,Manage common infrastructure services,Explicitly assigned workloads only,No access while assignment list is empty
+SECOPS,"Read Cloud Guard, logs, audit, VSS, and threat intelligence; execute approved responders",SCCA home tree,"No detector/recipe administration; no infrastructure administration"
+APPDEV,"Use existing compute; read objects, logs, and metrics",Explicitly assigned workloads only,No access while assignment list is empty
+DEVOPS,"Manage DevOps, Functions, API Gateway, and OKE; use existing network",Explicitly assigned workloads only,No access while assignment list is empty
+Database-Admins,Manage database-family,Explicitly assigned workloads only,No access while assignment list is empty
+Storage-Admins,"Manage volume, file, and object storage",Explicitly assigned workloads only,No access while assignment list is empty
+Backup-Admins,"Manage block and boot volume backups, policies, and policy assignments",Explicitly assigned workloads only,No access while assignment list is empty
+Helpdesk-Operators,None from OCI IAM policy,No OCI resource scope,Identity Domain Help Desk application role belongs in a later identity administration stack
+Incident-Responders,"Read security telemetry and execute approved Cloud Guard responders",SCCA home tree,No infrastructure or security-configuration administration
+Compliance-Auditors,"Inspect inventory and policies; read audit events and logging configuration",SCCA home tree,"No log-content grant; no use or manage verbs"
+FinOps-Analysts,Read Cost Analysis and budgets,Tenancy cost services only,"No saved-report mutation; no budget mutation; no invoices or payment access"
+SWR1-Workload-Admins,Manage defined common workload service families,SWR1 only,"No all-resources; no IAM; no keys/secrets; no network ownership; no database or OKE by default"
+SWR2-Workload-Admins,Manage defined common workload service families,SWR2 only,"Generated only if SWR2 exists in Stack 01 workload JSON"

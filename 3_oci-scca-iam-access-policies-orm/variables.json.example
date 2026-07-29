@@ -1,0 +1,20 @@
+{
+  "tenancy_ocid": "ocid1.tenancy.oc1..replace_me",
+  "region": "us-ashburn-1",
+  "home_compartment_ocid": "ocid1.compartment.oc1..replace_home",
+  "vdms_compartment_ocid": "ocid1.compartment.oc1..replace_vdms",
+  "vdss_compartment_ocid": "ocid1.compartment.oc1..replace_vdss",
+  "orm_compartment_ocid": "",
+  "workload_compartment_ocids_json": "{\"SWR1\":\"ocid1.compartment.oc1..replace_swr1\",\"SWR2\":\"ocid1.compartment.oc1..replace_swr2\"}",
+  "identity_domain_display_name": "OCI-SCCA-LZ-Domain-IAD-PROD",
+  "region_key": "IAD",
+  "resource_label": "PROD",
+  "policy_name_prefix": "OCI-SCCA-LZ-IAM",
+  "enable_tenancy_scope_policies": true,
+  "cloudops_workload_keys": [],
+  "appdev_workload_keys": [],
+  "devops_workload_keys": [],
+  "database_admin_workload_keys": [],
+  "storage_admin_workload_keys": [],
+  "backup_admin_workload_keys": []
+}

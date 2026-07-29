@@ -1,0 +1,149 @@
+title: SCCA Identity Foundation - Domain and Human Group Catalog
+description: Creates an OCI identity domain in VDMS and defines the AD-authoritative human group catalog. No IAM policies, users, memberships, federation, or credentials are created.
+schemaVersion: 1.1.0
+version: "1.0.0"
+locale: en
+
+variableGroups:
+  - title: Placement and Provider
+    visible: true
+    variables:
+      - vdms_compartment_ocid
+      - region
+
+  - title: Identity Domain Naming
+    visible: true
+    variables:
+      - region_key
+      - resource_label
+      - identity_domain_name_prefix
+      - identity_domain_description
+
+  - title: Identity Domain License
+    visible: true
+    variables:
+      - identity_domain_license_type
+
+  - title: Human Group Authority
+    visible: true
+    variables:
+      - group_provisioning_mode
+      - workload_identifiers
+      - additional_group_names
+
+variables:
+  vdms_compartment_ocid:
+    type: ocid
+    title: VDMS Compartment OCID
+    description: Paste the vdms_compartment_ocid output from Stack 01. The identity domain will be created in this compartment.
+    required: true
+
+  region:
+    type: string
+    title: Identity Domain Home Region
+    description: OCI home region for this domain, for example us-ashburn-1. Use the tenancy home region unless your approved architecture says otherwise.
+    required: true
+
+  region_key:
+    type: string
+    title: Region Key Used in Name
+    description: Short naming key such as IAD or PHX.
+    default: IAD
+    required: true
+    pattern: ^[A-Za-z0-9]{2,8}$
+
+  resource_label:
+    type: string
+    title: Deployment Label
+    description: Short label such as PROD, DEV, or MISSION1.
+    default: PROD
+    required: true
+    pattern: ^[A-Za-z0-9._-]{1,20}$
+
+  identity_domain_name_prefix:
+    type: string
+    title: Identity Domain Base Name
+    default: OCI-SCCA-LZ-Domain
+    required: true
+    pattern: ^[A-Za-z0-9._-]{1,60}$
+
+  identity_domain_description:
+    type: string
+    title: Identity Domain Description
+    default: SCCA mission-owner identity domain for federated human access through on-premises AD and AD FS.
+    required: true
+
+  identity_domain_license_type:
+    type: enum
+    title: Identity Domain License
+    description: Free is recommended for inbound AD synchronization and federated OCI control-plane access. Premium is metered and requires explicit approval.
+    default: free
+    enum:
+      - free
+      - premium
+
+  group_provisioning_mode:
+    type: enum
+    title: Human Group Provisioning Mode
+    description: Keep AD_SYNC for production when on-prem AD is authoritative. OCI_NATIVE creates cloud-owned groups and is intended only for isolated labs without AD synchronization.
+    default: AD_SYNC
+    enum:
+      - AD_SYNC
+      - OCI_NATIVE
+
+  workload_identifiers:
+    type: array
+    title: Workload Identifiers
+    description: Generates one <identifier>-Workload-Admins catalog entry per workload.
+    default:
+      - SWR1
+      - SWR2
+    items:
+      type: string
+      pattern: ^[A-Za-z0-9._-]{1,32}$
+
+  additional_group_names:
+    type: array
+    title: Additional Human Groups
+    description: Optional extra group display names. In AD_SYNC mode, create matching groups in on-prem AD before bridge synchronization.
+    default: []
+    items:
+      type: string
+      pattern: ^[A-Za-z0-9][A-Za-z0-9 ._()-]{0,99}$
+
+outputs:
+  identity_domain_ocid:
+    type: ocid
+    title: Identity Domain OCID
+
+  identity_domain_url:
+    type: copyableString
+    title: Identity Domain URL
+
+  identity_domain_display_name:
+    type: copyableString
+    title: Identity Domain Display Name
+
+  identity_domain_license_type:
+    type: copyableString
+    title: Identity Domain License Type
+
+  group_provisioning_mode:
+    type: copyableString
+    title: Group Provisioning Mode
+
+  required_human_group_names_json:
+    type: copyableString
+    title: Required Human Group Names (JSON)
+
+  human_group_catalog_json:
+    type: copyableString
+    title: Human Group Catalog (JSON)
+
+  oci_native_group_ocids_json:
+    type: copyableString
+    title: OCI-Native Group OCIDs (JSON)
+
+  ad_bridge_guardrails_json:
+    type: copyableString
+    title: AD Bridge Guardrails (JSON)

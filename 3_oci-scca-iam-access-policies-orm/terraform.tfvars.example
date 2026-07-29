@@ -1,0 +1,38 @@
+tenancy_ocid = "ocid1.tenancy.oc1..replace_me"
+region       = "us-ashburn-1"
+
+# Copy these outputs from Stack 01.
+home_compartment_ocid = "ocid1.compartment.oc1..replace_home"
+vdms_compartment_ocid = "ocid1.compartment.oc1..replace_vdms"
+vdss_compartment_ocid = "ocid1.compartment.oc1..replace_vdss"
+
+# Leave blank when ORM stacks reside in the SCCA home compartment.
+orm_compartment_ocid = ""
+
+# Copy the exact JSON output from Stack 01. Keys are case-insensitive.
+workload_compartment_ocids_json = <<-JSON
+{
+  "SWR1": "ocid1.compartment.oc1..replace_swr1",
+  "SWR2": "ocid1.compartment.oc1..replace_swr2"
+}
+JSON
+
+# Copy this output from Stack 02.
+identity_domain_display_name = "OCI-SCCA-LZ-Domain-IAD-PROD"
+
+region_key        = "IAD"
+resource_label    = "PROD"
+policy_name_prefix = "OCI-SCCA-LZ-IAM"
+
+# ROOT CHANGE: limited to ORM PLAN/APPLY, read-only FinOps, and read-only
+# Cloud Guard configuration discovery for security roles.
+enable_tenancy_scope_policies = true
+
+# Functional groups get no workload access until an exact workload key is
+# assigned here. SWR1/SWR2-Workload-Admins are mapped automatically.
+cloudops_workload_keys        = []
+appdev_workload_keys          = []
+devops_workload_keys          = []
+database_admin_workload_keys  = []
+storage_admin_workload_keys   = []
+backup_admin_workload_keys    = []

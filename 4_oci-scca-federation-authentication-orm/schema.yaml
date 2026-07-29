@@ -1,0 +1,191 @@
+title: SCCA Federation and Authentication - AD FS, MFA, and Break-Glass Gates
+description: Registers enterprise AD FS as a disabled and hidden SAML identity provider, then uses explicit operational attestations to gate activation and publication. It does not create users, passwords, factors, JIT identities, or sign-on policy rules.
+schemaVersion: 1.1.0
+version: "1.0.0"
+locale: en
+
+variableGroups:
+  - title: Stack 02 Identity Domain
+    visible: true
+    variables:
+      - region
+      - identity_domain_url
+      - identity_domain_display_name
+      - group_provisioning_mode
+
+  - title: Enterprise AD FS Provider
+    visible: true
+    variables:
+      - adfs_partner_name
+      - identity_provider_description
+      - adfs_metadata_xml_base64
+      - require_encrypted_assertions
+      - require_force_authentication
+
+  - title: Break-Glass Test Attestation
+    visible: true
+    variables:
+      - break_glass_account_count
+      - break_glass_last_test_date
+      - break_glass_verification_confirmation
+
+  - title: Controlled Activation
+    visible: true
+    variables:
+      - activate_adfs_idp
+      - activation_change_ticket
+      - activation_confirmation
+
+  - title: Controlled Publication
+    visible: true
+    variables:
+      - publish_adfs_on_login_page
+      - publication_confirmation
+
+variables:
+  region:
+    type: string
+    title: OCI Region
+    description: OCI region used by Resource Manager, for example us-ashburn-1.
+    required: true
+
+  identity_domain_url:
+    type: string
+    title: Stack 02 Identity Domain URL
+    description: Paste the identity_domain_url output from Stack 02.
+    required: true
+
+  identity_domain_display_name:
+    type: string
+    title: Stack 02 Identity Domain Name
+    description: Paste the identity_domain_display_name output from Stack 02.
+    required: true
+
+  group_provisioning_mode:
+    type: enum
+    title: Human Identity Authority
+    description: AD_SYNC is mandatory because AD Bridge/synchronization, not SAML JIT, owns users and groups.
+    default: AD_SYNC
+    enum:
+      - AD_SYNC
+
+  adfs_partner_name:
+    type: string
+    title: AD FS Provider Name
+    default: OCI-SCCA-ADFS
+    required: true
+
+  identity_provider_description:
+    type: string
+    title: AD FS Provider Description
+    default: Enterprise AD FS federation for the SCCA mission-owner identity domain. Users and groups are provisioned by AD synchronization; JIT is disabled.
+    required: true
+
+  adfs_metadata_xml_base64:
+    type: string
+    title: AD FS Metadata (Base64)
+    description: Base64 of the approved FederationMetadata.xml. This is certificate metadata, never a private key or password.
+    required: true
+
+  require_encrypted_assertions:
+    type: boolean
+    title: Require Encrypted SAML Assertions
+    description: Recommended. AD FS must be configured with the OCI relying-party encryption certificate.
+    default: true
+
+  require_force_authentication:
+    type: boolean
+    title: Force AD FS Reauthentication
+    description: Normally false. Enable only if the approved AD FS session policy requires every OCI request to reauthenticate.
+    default: false
+
+  break_glass_account_count:
+    type: integer
+    title: Tested Local Break-Glass Accounts
+    description: Attestation only. Activation requires at least two independently usable OCI-local accounts.
+    default: 0
+    minimum: 0
+    maximum: 10
+
+  break_glass_last_test_date:
+    type: string
+    title: Last Break-Glass Test Date
+    description: UTC date in YYYY-MM-DD. Do not enter account names or secrets.
+    default: ""
+
+  break_glass_verification_confirmation:
+    type: string
+    title: Break-Glass Confirmation
+    description: After testing both accounts, enter I_HAVE_TESTED_TWO_LOCAL_BREAK_GLASS_ACCOUNTS.
+    default: ""
+
+  activate_adfs_idp:
+    type: boolean
+    title: Activate AD FS Identity Provider
+    description: Leave false on the first apply. Set true only during an approved activation change.
+    default: false
+
+  activation_change_ticket:
+    type: string
+    title: Activation Change Ticket
+    description: Required for activation, for example CHG-123456. Do not include spaces.
+    default: ""
+
+  activation_confirmation:
+    type: string
+    title: Activation Confirmation
+    description: Enter ACTIVATE_ADFS_IDP_AFTER_SUCCESSFUL_TEST only after prerequisites pass.
+    default: ""
+
+  publish_adfs_on_login_page:
+    type: boolean
+    title: Publish AD FS Login Option
+    description: Leave false until hidden-provider and IdP-policy tests succeed.
+    default: false
+
+  publication_confirmation:
+    type: string
+    title: Publication Confirmation
+    description: Enter PUBLISH_ADFS_AFTER_FEDERATION_AND_BREAK_GLASS_TESTS only after the final checklist passes.
+    default: ""
+
+outputs:
+  identity_provider_id:
+    type: copyableString
+    title: AD FS Identity Provider ID
+
+  identity_provider_name:
+    type: copyableString
+    title: AD FS Identity Provider Name
+
+  identity_provider_enabled:
+    type: copyableString
+    title: AD FS Identity Provider Enabled
+
+  identity_provider_published:
+    type: copyableString
+    title: AD FS Login Option Published
+
+  oci_service_provider_metadata_url:
+    type: copyableString
+    title: OCI Service Provider Metadata URL
+
+  oci_my_profile_url:
+    type: copyableString
+    title: OCI My Profile URL
+
+  adfs_metadata_sha256:
+    type: copyableString
+    title: AD FS Metadata SHA-256
+
+  activation_readiness_json:
+    type: copyableString
+    title: Activation Readiness (JSON)
+
+  manual_steps_remaining_json:
+    type: copyableString
+    title: Manual Steps Remaining (JSON)
+
+  break_glass_control_attestation_json:
+    type: copyableString
+    title: Break-Glass Attestation (JSON)

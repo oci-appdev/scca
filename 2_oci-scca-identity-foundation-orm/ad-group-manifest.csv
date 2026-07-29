@@ -1,0 +1,21 @@
+display_name,intended_responsibility,category,privileged,source_of_authority
+VDMS-Platform-Admins,Management services and landing-zone operations,management,true,ON_PREM_ACTIVE_DIRECTORY
+VDSS-Security-Admins,"Security stack, firewall, and inspection services",security,true,ON_PREM_ACTIVE_DIRECTORY
+Network-Admins,Network-specific administration,network,true,ON_PREM_ACTIVE_DIRECTORY
+Security-Auditors,Read-only security and compliance visibility,audit,false,ON_PREM_ACTIVE_DIRECTORY
+ORM-Deployment-Admins,Resource Manager stack administration,deployment,true,ON_PREM_ACTIVE_DIRECTORY
+AD-Admins,"On-premises Active Directory, AD FS, and federation administration",identity,true,ON_PREM_ACTIVE_DIRECTORY
+SWR1-Workload-Admins,Administration of workload SWR1 only,workload,true,ON_PREM_ACTIVE_DIRECTORY
+SWR2-Workload-Admins,Administration of workload SWR2 only,workload,true,ON_PREM_ACTIVE_DIRECTORY
+ENTOPS,Enterprise operations and shared-service coordination,operations,true,ON_PREM_ACTIVE_DIRECTORY
+CLOUDOPS,Day-to-day OCI cloud operations,operations,true,ON_PREM_ACTIVE_DIRECTORY
+SECOPS,"Security monitoring, triage, and response operations",security,true,ON_PREM_ACTIVE_DIRECTORY
+APPDEV,Application development activities,development,false,ON_PREM_ACTIVE_DIRECTORY
+DEVOPS,"CI/CD, automation, and deployment engineering",development,true,ON_PREM_ACTIVE_DIRECTORY
+Database-Admins,Database platform administration,database,true,ON_PREM_ACTIVE_DIRECTORY
+Storage-Admins,"Block, file, and object storage administration",storage,true,ON_PREM_ACTIVE_DIRECTORY
+Backup-Admins,Backup configuration and recovery operations,continuity,true,ON_PREM_ACTIVE_DIRECTORY
+Helpdesk-Operators,Tier-one user support and approved support workflows,support,false,ON_PREM_ACTIVE_DIRECTORY
+Incident-Responders,Cybersecurity incident investigation and response,security,true,ON_PREM_ACTIVE_DIRECTORY
+Compliance-Auditors,Read-only compliance evidence and control assessment,audit,false,ON_PREM_ACTIVE_DIRECTORY
+FinOps-Analysts,"Cloud cost reporting, forecasting, and optimization analysis",financial,false,ON_PREM_ACTIVE_DIRECTORY

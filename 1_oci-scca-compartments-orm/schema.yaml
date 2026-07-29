@@ -1,0 +1,173 @@
+title: SCCA-Like Compartment Structure Only
+description: Creates only an OCI compartment hierarchy modeled on Oracle's Mission Owner SCCA v1 landing zone.
+schemaVersion: 1.1.0
+version: "1.0.0"
+locale: en
+
+variableGroups:
+  - title: Placement and Provider
+    visible: true
+    variables:
+      - tenancy_ocid
+      - parent_compartment_ocid
+      - region
+
+  - title: SCCA Naming
+    visible: true
+    variables:
+      - region_key
+      - resource_label
+      - home_compartment_name
+      - vdms_compartment_name
+      - vdss_compartment_name
+
+  - title: Optional SCCA Compartments
+    visible: true
+    variables:
+      - enable_logging_compartment
+      - logging_compartment_name
+      - enable_backup_compartment
+      - backup_compartment_name
+
+  - title: Workload Compartments
+    visible: true
+    variables:
+      - workload_compartment_name_prefix
+      - workload_postfixes
+
+  - title: Destructive Lifecycle Control
+    visible: true
+    variables:
+      - enable_compartment_delete
+
+variables:
+  tenancy_ocid:
+    type: string
+    title: Tenancy OCID
+    description: OCID of the tenancy where the SCCA-like compartment tree will be created.
+    required: true
+
+  parent_compartment_ocid:
+    type: string
+    title: Existing Parent Compartment OCID (Optional)
+    description: Leave blank to place the SCCA home compartment under the tenancy root.
+    default: ""
+
+  region:
+    type: string
+    title: OCI Region
+    description: Region used by Resource Manager and the OCI provider, for example us-ashburn-1.
+    required: true
+
+  region_key:
+    type: string
+    title: Region Key Used in Names
+    description: Short region key used only in compartment names, for example IAD or PHX.
+    default: IAD
+    required: true
+    pattern: ^[A-Za-z0-9]{2,8}$
+
+  resource_label:
+    type: string
+    title: Deployment Label
+    description: Short label such as PROD, DEV, or MISSION1.
+    default: PROD
+    required: true
+    pattern: ^[A-Za-z0-9._-]{1,20}$
+
+  home_compartment_name:
+    type: string
+    title: SCCA Home / EBLZ Parent Base Name
+    default: OCI-SCCA-LZ-Home
+    required: true
+    pattern: ^[A-Za-z0-9._-]{1,70}$
+
+  vdms_compartment_name:
+    type: string
+    title: VDMS Base Name
+    default: OCI-SCCA-LZ-VDMS
+    required: true
+    pattern: ^[A-Za-z0-9._-]{1,70}$
+
+  vdss_compartment_name:
+    type: string
+    title: VDSS Base Name
+    default: OCI-SCCA-LZ-VDSS
+    required: true
+    pattern: ^[A-Za-z0-9._-]{1,70}$
+
+  enable_logging_compartment:
+    type: boolean
+    title: Create Logging Compartment
+    description: Creates the compartment only; no logging services or buckets are created.
+    default: true
+
+  logging_compartment_name:
+    type: string
+    title: Logging Base Name
+    default: OCI-SCCA-LZ-Logging
+    required: true
+    pattern: ^[A-Za-z0-9._-]{1,70}$
+    visible: enable_logging_compartment
+
+  enable_backup_compartment:
+    type: boolean
+    title: Create Terraform Backup Compartment
+    description: Creates the compartment only; no Object Storage bucket or backup resource is created.
+    default: true
+
+  backup_compartment_name:
+    type: string
+    title: Terraform Backup Base Name
+    default: OCI-SCCA-LZ-IAC-TF-Configbackup
+    required: true
+    pattern: ^[A-Za-z0-9._-]{1,70}$
+    visible: enable_backup_compartment
+
+  workload_compartment_name_prefix:
+    type: string
+    title: Workload Compartment Prefix
+    default: OCI-SCCA-LZ-WRK
+    required: true
+    pattern: ^[A-Za-z0-9._-]{1,70}$
+
+  workload_postfixes:
+    type: array
+    title: Workload Identifiers
+    description: One unique identifier for each workload compartment. Remove all entries to create no workload compartments.
+    default:
+      - SWR1
+    items:
+      type: string
+      pattern: ^[A-Za-z0-9._-]{1,32}$
+
+  enable_compartment_delete:
+    type: boolean
+    title: Allow Terraform to Delete Compartments
+    description: DANGEROUS. When enabled, destroy/removal attempts to delete empty compartments. Keep disabled for normal use.
+    default: false
+
+outputs:
+  home_compartment_ocid:
+    type: ocid
+    title: SCCA Home Compartment OCID
+
+  vdms_compartment_ocid:
+    type: ocid
+    title: VDMS Compartment OCID
+
+  vdss_compartment_ocid:
+    type: ocid
+    title: VDSS Compartment OCID
+
+  logging_compartment_ocid:
+    type: ocid
+    title: Logging Compartment OCID
+
+  backup_compartment_ocid:
+    type: ocid
+    title: Terraform Backup Compartment OCID
+
+  workload_compartment_ocids_json:
+    type: copyableString
+    title: Workload Compartment OCIDs (JSON)

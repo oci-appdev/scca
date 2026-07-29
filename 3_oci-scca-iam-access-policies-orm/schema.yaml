@@ -1,0 +1,216 @@
+title: SCCA IAM Access Policies - Least-Privilege Human Access
+description: Creates compartment-scoped OCI IAM policies for the AD-synchronized human groups from Stack 02. No users, groups, memberships, dynamic groups, credentials, or federation resources are created.
+schemaVersion: 1.1.0
+version: "1.0.0"
+locale: en
+
+variableGroups:
+  - title: Provider and Policy Placement
+    visible: true
+    variables:
+      - tenancy_ocid
+      - region
+      - home_compartment_ocid
+      - vdms_compartment_ocid
+      - vdss_compartment_ocid
+      - orm_compartment_ocid
+
+  - title: Identity Domain and Policy Naming
+    visible: true
+    variables:
+      - identity_domain_display_name
+      - region_key
+      - resource_label
+      - policy_name_prefix
+
+  - title: Workload Compartments
+    visible: true
+    variables:
+      - workload_compartment_ocids_json
+
+  - title: Explicit Functional-Group Workload Assignments
+    visible: true
+    variables:
+      - cloudops_workload_keys
+      - appdev_workload_keys
+      - devops_workload_keys
+      - database_admin_workload_keys
+      - storage_admin_workload_keys
+      - backup_admin_workload_keys
+
+  - title: Tenancy-Level Policy Change Control
+    visible: true
+    variables:
+      - enable_tenancy_scope_policies
+
+variables:
+  tenancy_ocid:
+    type: string
+    title: Tenancy OCID
+    description: Required to place the narrowly scoped ORM, FinOps, and Cloud Guard discovery policies at the root compartment.
+    required: true
+
+  region:
+    type: string
+    title: OCI Region
+    description: Region used by OCI Resource Manager and the provider, for example us-ashburn-1.
+    required: true
+
+  home_compartment_ocid:
+    type: oci:identity:compartment:id
+    title: SCCA Home Compartment OCID
+    description: Copy home_compartment_ocid from Stack 01.
+    required: true
+    dependsOn:
+      compartmentId: ${tenancy_ocid}
+
+  vdms_compartment_ocid:
+    type: oci:identity:compartment:id
+    title: VDMS Compartment OCID
+    description: Copy vdms_compartment_ocid from Stack 01.
+    required: true
+    dependsOn:
+      compartmentId: ${home_compartment_ocid}
+
+  vdss_compartment_ocid:
+    type: oci:identity:compartment:id
+    title: VDSS Compartment OCID
+    description: Copy vdss_compartment_ocid from Stack 01.
+    required: true
+    dependsOn:
+      compartmentId: ${home_compartment_ocid}
+
+  orm_compartment_ocid:
+    type: string
+    title: Resource Manager Stack Compartment OCID
+    description: Exact compartment containing the SCCA Resource Manager stacks. Leave blank to use the SCCA home compartment.
+    default: ""
+
+  identity_domain_display_name:
+    type: string
+    title: Identity Domain Display Name
+    description: Copy identity_domain_display_name from Stack 02.
+    default: OCI-SCCA-LZ-Domain-IAD-PROD
+    required: true
+    pattern: ^[A-Za-z0-9._-]{1,100}$
+
+  region_key:
+    type: string
+    title: Region Key Used in Policy Names
+    default: IAD
+    required: true
+    pattern: ^[A-Za-z0-9]{2,8}$
+
+  resource_label:
+    type: string
+    title: Deployment Label
+    default: PROD
+    required: true
+    pattern: ^[A-Za-z0-9._-]{1,20}$
+
+  policy_name_prefix:
+    type: string
+    title: IAM Policy Name Prefix
+    default: OCI-SCCA-LZ-IAM
+    required: true
+    pattern: ^[A-Za-z0-9._-]{1,40}$
+
+  workload_compartment_ocids_json:
+    type: string
+    title: Workload Compartment OCIDs (JSON)
+    description: Paste the exact workload_compartment_ocids_json output from Stack 01. Workload-admin policies are generated only for entries in this map.
+    default: "{}"
+    required: true
+
+  cloudops_workload_keys:
+    type: array
+    title: CLOUDOPS Workload Assignments
+    description: Exact workload keys where CLOUDOPS can administer infrastructure. Empty grants no workload access.
+    default: []
+    items:
+      type: string
+      pattern: ^[A-Za-z0-9._-]{1,32}$
+
+  appdev_workload_keys:
+    type: array
+    title: APPDEV Workload Assignments
+    description: Exact workload keys where APPDEV receives use/read access. Empty grants no workload access.
+    default: []
+    items:
+      type: string
+      pattern: ^[A-Za-z0-9._-]{1,32}$
+
+  devops_workload_keys:
+    type: array
+    title: DEVOPS Workload Assignments
+    description: Exact workload keys where DEVOPS can manage delivery services. Empty grants no workload access.
+    default: []
+    items:
+      type: string
+      pattern: ^[A-Za-z0-9._-]{1,32}$
+
+  database_admin_workload_keys:
+    type: array
+    title: Database Administrator Workload Assignments
+    description: Exact workload keys where Database-Admins can manage database-family. Empty grants no workload access.
+    default: []
+    items:
+      type: string
+      pattern: ^[A-Za-z0-9._-]{1,32}$
+
+  storage_admin_workload_keys:
+    type: array
+    title: Storage Administrator Workload Assignments
+    description: Exact workload keys where Storage-Admins can manage block, file, and object storage. Empty grants no workload access.
+    default: []
+    items:
+      type: string
+      pattern: ^[A-Za-z0-9._-]{1,32}$
+
+  backup_admin_workload_keys:
+    type: array
+    title: Backup Administrator Workload Assignments
+    description: Exact workload keys where Backup-Admins can manage block and boot volume backups, policies, and policy assignments. Empty grants no workload access.
+    default: []
+    items:
+      type: string
+      pattern: ^[A-Za-z0-9._-]{1,32}$
+
+  enable_tenancy_scope_policies:
+    type: boolean
+    title: Create Narrow Root Policies
+    description: Creates only the exact root statements required for ORM PLAN/APPLY, read-only FinOps, and read-only Cloud Guard configuration discovery. No all-resources, policy administration, user administration, or destroy permission is granted.
+    default: true
+
+outputs:
+  policy_count:
+    type: copyableString
+    title: Number of Policies Created
+
+  policy_ocids_json:
+    type: copyableString
+    title: Policy OCIDs (JSON)
+
+  generated_policy_statements_json:
+    type: copyableString
+    title: Generated Policy Statements (JSON)
+
+  workload_admin_scope_json:
+    type: copyableString
+    title: Workload Administrator Scope (JSON)
+
+  functional_workload_assignments_json:
+    type: copyableString
+    title: Functional Workload Assignments (JSON)
+
+  groups_without_generated_policy_json:
+    type: copyableString
+    title: Groups with No Policy from This Run (JSON)
+
+  tenancy_scope_policies_enabled:
+    type: copyableString
+    title: Tenancy Policies Enabled
+
+  orm_compartment_ocid:
+    type: ocid
+    title: ORM Compartment OCID

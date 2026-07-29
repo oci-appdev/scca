@@ -1,0 +1,3 @@
+Order,AD FS rule template,Incoming source,Incoming value,Outgoing claim,Outgoing format,OCI correlation target,Required control
+1,Send LDAP Attributes as Claims,Active Directory,E-Mail-Addresses,E-Mail Address,,,"Value must be the unique approved enterprise primary email"
+2,Transform an Incoming Claim,E-Mail Address,E-Mail Address,Name ID,Email,Primary email address,"Pass through all claim values; do not emit UPN display name or group as NameID"

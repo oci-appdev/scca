@@ -1,0 +1,10 @@
+{
+  "vdms_compartment_ocid": "ocid1.compartment.oc1..replace_me",
+  "region": "us-ashburn-1",
+  "region_key": "IAD",
+  "resource_label": "PROD",
+  "identity_domain_license_type": "free",
+  "group_provisioning_mode": "AD_SYNC",
+  "workload_identifiers": ["SWR1", "SWR2"],
+  "additional_group_names": []
+}

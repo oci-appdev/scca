@@ -1,0 +1,19 @@
+# Required: output from Stack 01.
+vdms_compartment_ocid = "ocid1.compartment.oc1..replace_me"
+
+# Use the approved identity-domain home region.
+region      = "us-ashburn-1"
+region_key  = "IAD"
+resource_label = "PROD"
+
+# Free supports the stated inbound AD synchronization and federated OCI access
+# design. Premium is metered and should be selected only after approval.
+identity_domain_license_type = "free"
+
+# Production default: groups are created in on-prem AD and synchronized to OCI.
+group_provisioning_mode = "AD_SYNC"
+
+workload_identifiers = ["SWR1", "SWR2"]
+
+# Optional. Also add these names to the on-prem AD group provisioning process.
+additional_group_names = []

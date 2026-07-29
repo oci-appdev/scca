@@ -1,0 +1,28 @@
+region                       = "us-ashburn-1"
+identity_domain_url          = "https://idcs-REPLACE.identity.oraclecloud.com"
+identity_domain_display_name = "OCI-SCCA-LZ-Domain-IAD-PROD"
+group_provisioning_mode      = "AD_SYNC"
+
+adfs_partner_name             = "OCI-SCCA-ADFS"
+identity_provider_description = "Enterprise AD FS federation for the SCCA mission-owner identity domain. Users and groups are provisioned by AD synchronization; JIT is disabled."
+
+# Replace this marker with the Base64 encoding of the approved
+# FederationMetadata.xml. The marker intentionally fails validation.
+adfs_metadata_xml_base64 = "REPLACE_WITH_BASE64_ADFS_FEDERATION_METADATA_XML"
+
+require_encrypted_assertions = true
+require_force_authentication = false
+
+# Pass 1: keep both false.
+activate_adfs_idp             = false
+publish_adfs_on_login_page    = false
+
+# Pass 2: populate only after two successful local break-glass tests.
+break_glass_account_count              = 0
+break_glass_last_test_date             = ""
+break_glass_verification_confirmation  = ""
+activation_change_ticket               = ""
+activation_confirmation                = ""
+
+# Pass 3: populate only after hidden-provider and IdP-policy tests pass.
+publication_confirmation = ""

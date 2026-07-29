@@ -1,0 +1,3 @@
+Account alias,Identity domain,Institutional owner,Primary custodian,Secondary custodian,Privilege justification,Local login excluded from federation verified,OCI-native MFA method,Spare factor independently stored,No API or automation credentials verified,Last successful test UTC,Read-only action tested,OCI audit evidence reference,Alert evidence reference,Change or exercise ticket,Witness,Result,Next test due UTC,Notes without secrets
+BG-01,,,,,,,,,,,,,,,,,,
+BG-02,,,,,,,,,,,,,,,,,,

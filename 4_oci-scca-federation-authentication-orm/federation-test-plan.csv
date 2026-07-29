@@ -1,0 +1,13 @@
+Test ID,Identity condition,Authentication condition,Expected result,Evidence
+FED-01,Synchronized standard pilot,Approved enterprise MFA satisfied,"AD FS login succeeds and OCI audit identifies the matching pre-synchronized user","AD FS event; OCI audit event"
+FED-02,Synchronized AD-Admins pilot,PIV/CAC or YubiKey policy satisfied,"Login succeeds and AD FS records the approved privileged authentication method","AD FS access-control and authentication-method events; OCI audit"
+FED-03,Synchronized AD-Admins pilot,Required PIV/CAC or YubiKey not satisfied,"AD FS denies access; no OCI session is created","AD FS denial event; absence of OCI session"
+FED-04,Disabled AD account,Any attempted factor,"Access is denied","AD FS denial event"
+FED-05,Disabled OCI synchronized account,Valid AD FS assertion,"Access is denied","OCI identity-domain/audit event"
+FED-06,Email not present in OCI,Valid AD FS assertion,"Access is denied and no OCI user is created","OCI audit; before/after user search"
+FED-07,Duplicate or ambiguous primary email,Valid AD FS assertion,"Cutover is blocked until data is corrected","Data-quality evidence; no production test"
+FED-08,Valid pilot,Altered issuer signature audience recipient or expiry,"SAML response is rejected","OCI federation error/audit evidence"
+FED-09,BG-01 local account,AD FS unavailable,"Local OCI login and OCI-native MFA succeed; harmless read-only administration succeeds","OCI audit and alert evidence"
+FED-10,BG-02 local account,AD FS unavailable,"Local OCI login and OCI-native MFA succeed independently of BG-01","OCI audit and alert evidence"
+FED-11,Federated pilot,AD FS signing certificate invalid or expired,"Access is denied and monitoring alerts","AD FS/OCI failure and alert evidence"
+FED-12,Unapproved user outside pilot or IdP scope,Valid enterprise authentication,"Routing/access follows the approved deny or non-federated policy; no privilege is granted","IdP policy and audit evidence"
