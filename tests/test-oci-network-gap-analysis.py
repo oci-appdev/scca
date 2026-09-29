@@ -658,6 +658,81 @@ class NetworkGapTests(unittest.TestCase):
         self.assertEqual(by_id[export.resource_ocid]["dependent_count"], 0)
         self.assertEqual(by_id[instance.resource_ocid]["dependent_count"], 0)
 
+    def _compute_runtime(self, scope, listings):
+        class FakeRuntime:
+            def __init__(self):
+                self.context = SimpleNamespace(tenancy_id=scope.ocid)
+                self.get_calls = []
+
+            def client(self, namespace, class_name):
+                return (namespace, class_name)
+
+            def list_items(self, scan_scope, service, client, method, *args, **kwargs):
+                return listings.get(method, [])
+
+            def get_item(self, scan_scope, service, client, method, *args, **kwargs):
+                self.get_calls.append((method, args, kwargs))
+                return None
+
+        return FakeRuntime()
+
+    def test_detached_compute_attachments_are_not_dependencies(self):
+        scope = gap.ScopeItem("ocid1.tenancy.oc1..root", "root", "TENANCY")
+        terminated = "ocid1.instance.oc1..terminated"
+        runtime = self._compute_runtime(
+            scope,
+            {
+                "list_volume_attachments": [
+                    SimpleNamespace(
+                        volume_id="ocid1.volume.oc1..gone",
+                        instance_id=terminated,
+                        lifecycle_state="DETACHED",
+                    )
+                ],
+                "list_vnic_attachments": [
+                    SimpleNamespace(
+                        vnic_id="ocid1.vnic.oc1..deleted",
+                        instance_id=terminated,
+                        lifecycle_state="DETACHED",
+                    )
+                ],
+            },
+        )
+        inventory = gap.Inventory({scope.ocid: scope.name})
+        gap.collect_compute(runtime, inventory, [scope])
+        self.assertEqual(runtime.get_calls, [])
+        self.assertEqual(inventory.resources, {})
+        self.assertEqual(inventory.links, [])
+
+    def test_attachment_with_both_ends_missing_is_unresolved(self):
+        scope = gap.ScopeItem("ocid1.tenancy.oc1..root", "root", "TENANCY")
+        volume_id = "ocid1.volume.oc1..missing"
+        instance_id = "ocid1.instance.oc1..missing"
+        runtime = self._compute_runtime(
+            scope,
+            {
+                "list_volume_attachments": [
+                    SimpleNamespace(
+                        id="ocid1.volumeattachment.oc1..orphan",
+                        display_name="orphan",
+                        compartment_id=scope.ocid,
+                        volume_id=volume_id,
+                        instance_id=instance_id,
+                        lifecycle_state="ATTACHED",
+                    )
+                ]
+            },
+        )
+        inventory = gap.Inventory({scope.ocid: scope.name})
+        gap.collect_compute(runtime, inventory, [scope])
+        gap.resolve_networks(inventory, self.old, self.new)
+        attachment = inventory.resources[
+            inventory.ocid_to_key["ocid1.volumeattachment.oc1..orphan"]
+        ]
+        self.assertEqual(attachment.resource_type, "VOLUME_ATTACHMENT")
+        self.assertEqual(attachment.unresolved_refs, {volume_id, instance_id})
+        self.assertFalse(gap.decision_gate_complete(inventory, gap.WORK, []))
+
     def test_missing_fss_relationships_are_explicitly_unresolved(self):
         scope = gap.ScopeItem("ocid1.tenancy.oc1..root", "root", "TENANCY")
         export_id = "ocid1.export.oc1..export"

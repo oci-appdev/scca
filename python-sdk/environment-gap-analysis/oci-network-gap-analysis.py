@@ -801,6 +801,10 @@ def collect_core_network(
                 )
 
 
+def is_detached(attachment: Any) -> bool:
+    return text(attachment, "lifecycle_state").upper() == "DETACHED"
+
+
 def collect_compute(
     rt: EvidenceRuntime, inventory: Inventory, scopes: Sequence[ScopeItem]
 ) -> None:
@@ -822,7 +826,7 @@ def collect_compute(
     ad_names = [
         text(item, "name") for item in availability_domains or [] if text(item, "name")
     ]
-    pending_volume_attachments: List[Tuple[str, str, str]] = []
+    pending_volume_attachments: List[Tuple[ScopeItem, Any, str, str, str]] = []
     for scope in scopes:
         volumes = rt.list_items(
             scope,
@@ -873,8 +877,12 @@ def collect_compute(
         )
         if volume_attachments is not None:
             for item in volume_attachments:
+                if is_detached(item):
+                    continue
                 pending_volume_attachments.append(
                     (
+                        scope,
+                        item,
                         text(item, "volume_id"),
                         text(item, "instance_id"),
                         "BLOCK-VOLUME-ATTACHED-TO-INSTANCE",
@@ -891,8 +899,12 @@ def collect_compute(
             )
             if boot_attachments is not None:
                 for item in boot_attachments:
+                    if is_detached(item):
+                        continue
                     pending_volume_attachments.append(
                         (
+                            scope,
+                            item,
                             text(item, "boot_volume_id"),
                             text(item, "instance_id"),
                             "BOOT-VOLUME-ATTACHED-TO-INSTANCE",
@@ -906,7 +918,9 @@ def collect_compute(
         for attachment in attachments:
             vnic_id = text(attachment, "vnic_id")
             instance_id = text(attachment, "instance_id")
-            if not vnic_id:
+            # A detached VNIC no longer exists, so get_vnic would fail and close
+            # the global destroy-review gate for a relationship that is gone.
+            if not vnic_id or is_detached(attachment):
                 continue
             vnic = rt.get_item(scope, "Virtual Network", network, "get_vnic", vnic_id)
             if vnic is None:
@@ -961,7 +975,13 @@ def collect_compute(
                     vnic_resource.key, "HAS-PRIVATE-IP", private_resource.resource_ocid
                 )
 
-    for volume_id, instance_id, relationship in pending_volume_attachments:
+    for (
+        scope,
+        attachment,
+        volume_id,
+        instance_id,
+        relationship,
+    ) in pending_volume_attachments:
         volume_key = inventory.ocid_to_key.get(volume_id)
         instance_key = inventory.ocid_to_key.get(instance_id)
         if volume_key:
@@ -975,6 +995,20 @@ def collect_compute(
                 instance_key,
                 "USES-UNRESOLVED-VOLUME",
                 volume_id or "<missing-volume>",
+            )
+        else:
+            # Neither end was inventoried; keep the attachment itself as the
+            # evidence source so the unresolved relationship is not dropped.
+            orphan = inventory.add("VOLUME_ATTACHMENT", attachment, scope)
+            inventory.link(
+                orphan.key,
+                "USES-UNRESOLVED-VOLUME",
+                volume_id or "<missing-volume>",
+            )
+            inventory.link(
+                orphan.key,
+                "ATTACHED-TO-UNRESOLVED-INSTANCE",
+                instance_id or "<missing-instance>",
             )
 
 
