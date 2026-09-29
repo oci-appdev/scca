@@ -16,7 +16,7 @@
   terminate, move, or other OCI mutation workflow.
 - Decision boundary: Output is technical decommission-review evidence only;
   it is not authorization to destroy a resource.
-- Validation: The read-only self-check and all 17 focused regression tests
+- Validation: The read-only self-check and all 18 focused regression tests
   passed from the SCCA repository layout. Re-run with
   `python3 -m unittest -v tests/test-oci-network-gap-analysis.py` and
   `python3 python-sdk/environment-gap-analysis/oci-network-gap-analysis.py --selfcheck`.

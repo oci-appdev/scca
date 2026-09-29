@@ -1301,6 +1301,19 @@ def resolve_networks(
             break
 
 
+# Links point from the underlying resource to its consumer so the consumer's
+# network class propagates back to the source; for dependent counting the
+# direction is reversed (the target depends on the source).
+DEPENDED_ON_BY_TARGET = frozenset(
+    {
+        "HAS-DRG-ATTACHMENT",
+        "HAS-EXPORT",
+        "BLOCK-VOLUME-ATTACHED-TO-INSTANCE",
+        "BOOT-VOLUME-ATTACHED-TO-INSTANCE",
+    }
+)
+
+
 def decision_gate_complete(
     inventory: Inventory,
     work: Sequence[str],
@@ -1329,7 +1342,7 @@ def build_rows(
     List[Dict[str, Any]],
 ]:
     inventory.dedupe_links()
-    outgoing: Counter[str] = Counter(link.source_key for link in inventory.links)
+    outgoing: Counter[str] = Counter()
     incoming: Counter[str] = Counter()
     dependency_rows: List[Dict[str, Any]] = []
     unresolved_rows: List[Dict[str, Any]] = []
@@ -1337,8 +1350,16 @@ def build_rows(
         source = inventory.resources[link.source_key]
         target_key = inventory.ocid_to_key.get(link.target_ocid, "")
         target = inventory.resources.get(target_key)
-        if target is not None:
-            incoming[target.key] += 1
+        if link.relationship in DEPENDED_ON_BY_TARGET:
+            # The source is the underlying resource; the target (possibly
+            # unresolved) still depends on it and must be dispositioned first.
+            incoming[source.key] += 1
+            if target is not None:
+                outgoing[target.key] += 1
+        else:
+            outgoing[source.key] += 1
+            if target is not None:
+                incoming[target.key] += 1
         dependency_rows.append(
             {
                 "source_key": source.key,
