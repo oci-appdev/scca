@@ -592,6 +592,147 @@ class NetworkGapTests(unittest.TestCase):
             inventory.links,
         )
 
+    def test_attached_volumes_exported_file_systems_and_drgs_have_dependents(self):
+        scope = gap.ScopeItem("ocid1.tenancy.oc1..root", "root", "TENANCY")
+        inventory = gap.Inventory({scope.ocid: scope.name})
+
+        def item(ocid):
+            return SimpleNamespace(
+                id=ocid,
+                display_name=ocid.rsplit(".", 1)[-1],
+                compartment_id=scope.ocid,
+                lifecycle_state="AVAILABLE",
+                time_created=datetime(2024, 1, 1, tzinfo=timezone.utc),
+            )
+
+        subnet_id = "ocid1.subnet.oc1..old"
+        inventory.add("SUBNET", item(subnet_id), scope, cidrs=("172.16.1.0/24",))
+        mount = inventory.add(
+            "FSS_MOUNT_TARGET", item("ocid1.mounttarget.oc1..mt"), scope,
+            subnet_ocids=(subnet_id,),
+        )
+        file_system = inventory.add(
+            "FILE_SYSTEM", item("ocid1.filesystem.oc1..fs"), scope
+        )
+        export = inventory.add("FSS_EXPORT", item("ocid1.export.oc1..ex"), scope)
+        inventory.link(file_system.key, "HAS-EXPORT", export.resource_ocid)
+        inventory.link(export.key, "USES-MOUNT-TARGET", mount.resource_ocid)
+        instance = inventory.add(
+            "COMPUTE_INSTANCE", item("ocid1.instance.oc1..vm"), scope,
+            subnet_ocids=(subnet_id,),
+        )
+        volume = inventory.add("BLOCK_VOLUME", item("ocid1.volume.oc1..data"), scope)
+        inventory.link(
+            volume.key, "BLOCK-VOLUME-ATTACHED-TO-INSTANCE", instance.resource_ocid
+        )
+        vcn = inventory.add(
+            "VCN", item("ocid1.vcn.oc1..old"), scope, cidrs=("172.16.0.0/16",)
+        )
+        attachment = inventory.add(
+            "DRG_ATTACHMENT", item("ocid1.drgattachment.oc1..a"), scope,
+            vcn_ocids=(vcn.resource_ocid,),
+        )
+        drg = inventory.add("DRG", item("ocid1.drg.oc1..drg"), scope)
+        inventory.link(drg.key, "HAS-DRG-ATTACHMENT", attachment.resource_ocid)
+
+        gap.resolve_networks(inventory, self.old, self.new)
+        rows, _, _, _ = gap.build_rows(
+            inventory,
+            gap.parse_cutoff("2026-01-01"),
+            tenancy_wide=True,
+            collection_complete=True,
+        )
+        by_id = {row["resource_ocid"]: row for row in rows}
+        for underlying, consumer in (
+            (file_system, export),
+            (volume, instance),
+            (drg, attachment),
+        ):
+            self.assertEqual(by_id[underlying.resource_ocid]["dependent_count"], 1)
+            self.assertEqual(
+                by_id[underlying.resource_ocid]["suggested_disposition"],
+                "REVIEW-DESTROY-AFTER-DEPENDENCIES",
+            )
+            # Underlying resource plus the consumer's own network link.
+            self.assertEqual(by_id[consumer.resource_ocid]["depends_on_count"], 2)
+        self.assertEqual(by_id[export.resource_ocid]["dependent_count"], 0)
+        self.assertEqual(by_id[instance.resource_ocid]["dependent_count"], 0)
+
+    def _compute_runtime(self, scope, listings):
+        class FakeRuntime:
+            def __init__(self):
+                self.context = SimpleNamespace(tenancy_id=scope.ocid)
+                self.get_calls = []
+
+            def client(self, namespace, class_name):
+                return (namespace, class_name)
+
+            def list_items(self, scan_scope, service, client, method, *args, **kwargs):
+                return listings.get(method, [])
+
+            def get_item(self, scan_scope, service, client, method, *args, **kwargs):
+                self.get_calls.append((method, args, kwargs))
+                return None
+
+        return FakeRuntime()
+
+    def test_detached_compute_attachments_are_not_dependencies(self):
+        scope = gap.ScopeItem("ocid1.tenancy.oc1..root", "root", "TENANCY")
+        terminated = "ocid1.instance.oc1..terminated"
+        runtime = self._compute_runtime(
+            scope,
+            {
+                "list_volume_attachments": [
+                    SimpleNamespace(
+                        volume_id="ocid1.volume.oc1..gone",
+                        instance_id=terminated,
+                        lifecycle_state="DETACHED",
+                    )
+                ],
+                "list_vnic_attachments": [
+                    SimpleNamespace(
+                        vnic_id="ocid1.vnic.oc1..deleted",
+                        instance_id=terminated,
+                        lifecycle_state="DETACHED",
+                    )
+                ],
+            },
+        )
+        inventory = gap.Inventory({scope.ocid: scope.name})
+        gap.collect_compute(runtime, inventory, [scope])
+        self.assertEqual(runtime.get_calls, [])
+        self.assertEqual(inventory.resources, {})
+        self.assertEqual(inventory.links, [])
+
+    def test_attachment_with_both_ends_missing_is_unresolved(self):
+        scope = gap.ScopeItem("ocid1.tenancy.oc1..root", "root", "TENANCY")
+        volume_id = "ocid1.volume.oc1..missing"
+        instance_id = "ocid1.instance.oc1..missing"
+        runtime = self._compute_runtime(
+            scope,
+            {
+                "list_volume_attachments": [
+                    SimpleNamespace(
+                        id="ocid1.volumeattachment.oc1..orphan",
+                        display_name="orphan",
+                        compartment_id=scope.ocid,
+                        volume_id=volume_id,
+                        instance_id=instance_id,
+                        lifecycle_state="ATTACHED",
+                    )
+                ]
+            },
+        )
+        inventory = gap.Inventory({scope.ocid: scope.name})
+        gap.collect_compute(runtime, inventory, [scope])
+        gap.resolve_networks(inventory, self.old, self.new)
+        attachment = inventory.resources[
+            inventory.ocid_to_key["ocid1.volumeattachment.oc1..orphan"]
+        ]
+        self.assertEqual(attachment.resource_type, "VOLUME_ATTACHMENT")
+        self.assertEqual(attachment.unresolved_refs, {volume_id, instance_id})
+        self.assertFalse(gap.decision_gate_complete(inventory, gap.WORK, []))
+
     def test_missing_fss_relationships_are_explicitly_unresolved(self):
         scope = gap.ScopeItem("ocid1.tenancy.oc1..root", "root", "TENANCY")
         export_id = "ocid1.export.oc1..export"

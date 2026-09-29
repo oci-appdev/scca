@@ -131,7 +131,10 @@ Volume attachments are reconciled after every target compartment is scanned,
 so an instance and its volume may reside in different compartments without the
 relationship depending on collection order. Missing DRG, volume, VNIC, FSS or
 export-set references are written as unresolved evidence and hold the global
-destroy-review gate.
+destroy-review gate. An attachment whose volume and instance are both
+missing is kept as a `VOLUME_ATTACHMENT` row so the gap is not dropped.
+Volume, boot-volume and VNIC attachments that OCI reports as `DETACHED` are
+historical records, not live dependencies, and are skipped.
 
 Service-specific private endpoints outside that list, other regions,
 in-guest dependencies, DNS consumers, external systems, Terraform state,
