@@ -1,5 +1,18 @@
 # SCCA repository handoff
 
+## Old-to-new landing-zone migration checklist
+
+- Added 2026-10-01: `docs/OCI_OLD_TO_NEW_LANDING_ZONE_MIGRATION_CHECKLIST.md`.
+- Covers compartment reassignment versus actual 172.16-to-10.x workload/network
+  migration, IAM, network/DRG connectivity, application VMs, storage, OKE,
+  databases, cutover, rollback, acceptance and separately approved retirement.
+- Documentation only; no live OCI changes or new mutation scripts.
+- Preserve Claude's current 20-test gap-analysis implementation and continue
+  using only the Oracle OCI Python SDK for future automation.
+- Next: complete source/destination OCID mapping, workload dependency rows,
+  RTO/RPO, service-specific supported migration methods and owner approvals
+  before executing any migration wave.
+
 ## OCI environment gap analysis
 
 - Status: Implemented, validated, and published to `main` on 2026-09-29.
