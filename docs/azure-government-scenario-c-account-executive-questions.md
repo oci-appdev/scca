@@ -1,10 +1,10 @@
 # Microsoft Azure Government — Account Executive Discovery Questions
 
-## Scenario C: Hybrid GPU and Kubernetes workloads for DataWalk and Hyperscience
+## Scenario C: Full Azure Government deployment of DataWalk and Hyperscience
 
 **Status:** Discovery and negotiation only. No pricing, funding, capacity, contractual protection or delivery commitment has been confirmed.
 
-**Purpose:** Evaluate Microsoft's commercial proposal for selected Azure Government workloads while retaining remaining enterprise infrastructure on premises. This questionnaire complements the [technical discovery questionnaire](./azure-government-scenario-c-discovery.md) and [editable Draw.io architecture](./azure-government-scenario-c.drawio).
+**Purpose:** Evaluate Microsoft's commercial proposal for a complete Azure Government deployment of DataWalk and Hyperscience, including application tiers, databases, datasets, models, compute, storage, identity dependencies, security operations and cloud-to-cloud recovery. Neither application will rely on on-premises infrastructure for runtime operation. Other enterprise systems are outside the migration scope. Temporary migration connectivity and approved external user access are not hybrid hosting. This questionnaire complements the [technical discovery questionnaire](./azure-government-scenario-c-discovery.md) and [editable Draw.io architecture](./azure-government-scenario-c.drawio).
 
 > Public-reference edition: internal budget figures, exact capacity requirements and project-specific deadlines are omitted. Discuss these through approved internal channels. All proposed concessions require procurement and legal review.
 
@@ -27,6 +27,8 @@
 | 13 | What happens financially if implementation is delayed? | Critical |
 | 14 | Can Microsoft commit named resources and milestones to our required delivery schedule? | Critical |
 | 15 | What is Microsoft's best commercial proposal, subject to applicable procurement rules? | Critical |
+| 16 | Can Microsoft provide a complete five-year quote for both cloud-only application stacks, including all supporting services, cloud HA and DR? | Critical |
+| 17 | Can Microsoft commit to an acceptance milestone demonstrating no on-premises runtime dependency? | Critical |
 
 ## 2. Enterprise agreements and procurement
 
@@ -54,7 +56,8 @@ Ask which pricing models, including reserved instances, savings plans and Azure 
 | GPU pricing | Can we negotiate custom rates for GPU instances? |
 | Price protection | Can unit prices be locked for five years? |
 | Volume discounts | Will discounts increase as consumption grows? |
-| Networking | Can ExpressRoute charges be discounted? |
+| Networking | Can cloud networking, approved user access and temporary migration connectivity charges be discounted? |
+| Cloud recovery | Can Microsoft offer pricing for authorized secondary-region GPU capacity, backup and recovery? |
 | Security | Can Defender, monitoring and security licensing be bundled? |
 | Support | Can enterprise support be included? |
 | Renewal | What happens to prices after the initial term? |
@@ -68,7 +71,7 @@ Ask which pricing models, including reserved instances, savings plans and Azure 
 3. Can Microsoft fund initial SACA landing zone deployment?
 4. Can Microsoft cover engineering costs for the DataWalk and Hyperscience POC?
 5. Are competitive migration incentives available for customers moving from OCI?
-6. Can Microsoft subsidize ExpressRoute installation or connectivity costs?
+6. Can Microsoft subsidize temporary migration connectivity, data transfer and approved cloud access setup costs?
 7. Can Microsoft provide GPU resources at no cost during benchmarking?
 8. Are Microsoft-funded partner engagements available?
 9. Can Microsoft provide funding for ATO documentation and security engineering?
@@ -83,7 +86,10 @@ Ask which pricing models, including reserved instances, savings plans and Azure 
 | GPU benchmarking | TBD |
 | DataWalk engineering | TBD |
 | Hyperscience engineering | TBD |
-| Network implementation | TBD |
+| Cloud networking and approved access | TBD |
+| Data and database migration | TBD |
+| Cloud-only identity and operational transition | TBD |
+| Cloud recovery implementation and exercises | TBD |
 | Security and ATO assistance | TBD |
 | Staff training | TBD |
 | Migration assistance | TBD |
@@ -113,7 +119,9 @@ A pricing reservation is not a capacity reservation. Ask whether capacity reserv
 | Implementation delay | Can credits and commitments be extended? |
 | GPU shortage | Can financial commitments be suspended until capacity is available? |
 | Service incompatibility | Can we cancel if either application cannot be supported? |
-| Network delays | Can contractual milestones be adjusted? |
+| Migration or cloud access delays | Can contractual milestones be adjusted? |
+| Cloud independence failure | Can acceptance and commitments be deferred if either application still requires on-premises runtime services? |
+| Cloud recovery limitations | Can remedies be negotiated if required recovery capability or secondary GPU capacity cannot be provided? |
 | Budget reduction | Can annual commitments be reduced? |
 | Security limitations | Can we exit if mandatory government controls cannot be satisfied? |
 
@@ -131,6 +139,8 @@ Provider authorization is not workload ATO. Negotiate explicit conditions, remed
 8. Can we access detailed cost and usage reports through APIs?
 9. Can Azure Government export FOCUS-compatible billing reports?
 10. How can we avoid paying for unused GPU capacity?
+11. Can the forecast include all cloud-resident data, database, identity, security, networking, HA and DR costs rather than relying on existing data center services?
+12. Can one-time migration and legacy decommissioning expenses be separated from ongoing cloud consumption?
 
 Budget alerts alone are not hard spending limits. Ask about actual resource enforcement, cost controls, overage rates and contractual protections.
 
@@ -173,22 +183,26 @@ Request named owners, funded hours, deliverables, escalation paths and responsib
 7. Can we establish a dedicated escalation path for GPU capacity issues?
 8. What service credits or contractual remedies are available?
 9. Can Microsoft provide proactive health assessments?
-10. Can Microsoft assist during cybersecurity incidents and disaster recovery exercises?
+10. Can Microsoft assist during cybersecurity incidents and cloud-to-cloud disaster recovery exercises?
+11. What support and recovery commitments are offered if an Azure region or GPU pool is unavailable?
+12. Can Microsoft provide funded migration, cutover and post-cutover stabilization support, including cloud-only operations handoff?
 
 ## 11. Required commercial proposals
 
 Request three separately priced options within Scenario C.
 
-| Area | C1: POC only | C2: Limited hybrid | C3: Full selected-workload deployment |
+| Area | C1: Cloud-only POC | C2: Phased cloud migration | C3: Full cloud deployment |
 |---|---|---|---|
 | DataWalk | Dev | Dev/Test | Dev/Test/Prod |
 | Hyperscience | Test | Test | Test/Prod |
 | GPU capacity | Temporary | Limited | Production capacity |
 | Commitment | None preferred | Flexible | Negotiated |
 | Authorization | Approved POC scope | As required | Production ATO |
-| Purpose | Validate feasibility | Reduce implementation risk | Production operations |
+| Purpose | Validate feasibility | Validate nonproduction before production cutover | Full independent cloud operations |
+| Runtime dependencies | Cloud-hosted POC dependencies | All migrated environments self-contained in cloud | All DW/HS runtime services in cloud |
+| Recovery | Test backup/restore | Validate cloud recovery | Authorized cloud HA/DR design and recovery testing |
 
-For each option, request assumptions, exact SKU quantities, usage hours, monthly and annual costs, one-time implementation expenses, five-year TCO, funding credits, capacity terms, and exclusions.
+For each option, request assumptions, exact SKU quantities, usage hours, monthly and annual costs, one-time migration and implementation expenses, five-year TCO, funding credits, capacity terms, and exclusions. C1 and C2 are stages toward C3, not permanent hybrid architectures. Include cloud identity, databases, storage, security, access, backup, DR and support; explicitly distinguish one-time migration connectivity from recurring access services.
 
 ## 12. Account executive deliverables tracker
 
@@ -203,7 +217,10 @@ For each option, request assumptions, exact SKU quantities, usage hours, monthly
 - [ ] Implementation schedule and statement of work
 - [ ] Enterprise support proposal
 - [ ] Contract termination and exit conditions
-- [ ] Competitive TCO comparison against OCI
+- [ ] Competitive TCO comparison against OCI and on-premises alternatives
+- [ ] Full cloud bill of materials and cloud-only runtime acceptance criteria
+- [ ] Migration and legacy retirement plan, including transition funding
+- [ ] Cloud HA/DR pricing, capacity and support commitments
 
 ## 13. Proposed negotiation objectives
 
@@ -215,7 +232,9 @@ For each option, request assumptions, exact SKU quantities, usage hours, monthly
 | Pricing protection | Five years |
 | GPU capacity | Written commitment |
 | Unused credits | Carryover or extension |
-| Early termination | Protection for authorization or compatibility failure |
+| Early termination | Protection for authorization, compatibility or cloud-only acceptance failure |
+| Cloud operational acceptance | Both stacks run without former data center runtime dependencies |
+| Cloud recovery | Written design, cost and recovery capacity proposal |
 | Cost reviews | Quarterly |
 | Dedicated account team | Included |
 | Technical workshops | Included |
@@ -236,7 +255,7 @@ These are negotiation targets, not confirmed offers. Obtain procurement and lega
 
 ## 15. Recommendation and decision gates
 
-Prioritize competitive total cost, a Microsoft-funded POC and no production financial commitment before ATO approval. Require written pricing, capacity evidence, vendor compatibility, and a realistic delivery plan before proceeding.
+Prioritize competitive total cost, a Microsoft-funded cloud-only POC and no production financial commitment before ATO approval. Require written pricing, GPU capacity evidence, vendor compatibility, fully cloud-hosted dependencies, cloud recovery, migration and independent operation acceptance criteria, and a realistic delivery plan before proceeding.
 
 **References:**
 
