@@ -8,7 +8,7 @@
 
 > Public-reference edition: internal budget figures, exact capacity requirements and project-specific deadlines are omitted. Discuss these through approved internal channels. All proposed concessions require procurement and legal review.
 
-## 1. Top 15 executive questions
+## 1. Top 17 executive questions
 
 | # | Question | Priority |
 |---|---|---|
