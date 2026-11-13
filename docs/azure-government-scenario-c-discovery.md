@@ -1,9 +1,11 @@
 # Azure Government Cloud Discovery — Scenario C
-## Hybrid GPU and Kubernetes workloads: DataWalk and Hyperscience
+## Full cloud deployment: DataWalk and Hyperscience GPU and Kubernetes workloads
 
 **Status:** Discovery only — proposed architecture; feasibility, capacity, pricing, and authorization unverified.
 
-**Objective:** Evaluate Azure Government for selected GPU-intensive and Kubernetes workloads while retaining other enterprise systems on premises. This is not a full enterprise migration proposal.
+**Objective:** Deploy the complete DataWalk (DW) and Hyperscience (HS) application stacks in Azure Government, including application tiers, databases, datasets, models, compute, storage and required platform services. This is a full cloud migration of these two applications, not an enterprise-wide migration.
+
+**Design requirement:** No DW/HS application runtime component or required runtime service may reside on premises. Cloud-hosted processing, data, identity dependencies, DNS, monitoring and recovery must continue independently of on-premises infrastructure. Approved external user access and temporary migration connections do not constitute hybrid hosting. Any unavoidable external integration must be documented and approved; no critical runtime dependency may be assumed.
 
 > Public-reference edition: organization-specific inventory, network capacity, budget estimates, and target dates are intentionally omitted. Supply these through approved internal channels.
 
@@ -17,7 +19,10 @@
 | OS | RHEL 8.10 requirement to validate with vendors |
 | GPU | NVIDIA A10, 24 GB VRAM, as a comparison baseline |
 | Kubernetes | Private AKS, subject to OS, GPU, vendor and authorization compatibility |
-| Connectivity | ExpressRoute through approved government connectivity |
+| Connectivity | Approved government access boundary, private cloud networking and temporary migration connectivity as needed |
+| Runtime | All required application tiers, databases, datasets, models, queues and storage hosted in the approved cloud boundary |
+| Identity and operations | Cloud-resident runtime identity, DNS, logging, endpoint security and management |
+| Recovery | Cloud-to-cloud backup and disaster recovery, subject to authorized region and service availability |
 | Security | SCCA/SACA, approved identity, endpoint protection and SIEM integrations |
 | Cost | Five-year total cost of ownership |
 
@@ -25,7 +30,7 @@
 
 **Editable architecture diagram:** [Download the raw Draw.io file](https://raw.githubusercontent.com/oci-appdev/scca/main/docs/azure-government-scenario-c.drawio). Save it with the `.drawio` extension, then open it using **File > Open From > Device** in [diagrams.net](https://app.diagrams.net/) or Draw.io Desktop. Do not save the GitHub HTML preview page as a diagram. No Mermaid renderer is required.
 
-Concept only. Microsoft and the application vendors must validate topology, environment segregation, service authorization, data flows, and operational responsibilities.
+Concept only. All application runtime components reside in Azure Government. External user access is not a hosting dependency. Microsoft and the vendors must validate topology, environment segregation, service authorization, data flows, cloud-resident identity and operational responsibilities.
 
 ## 3. Top 15 questions for Microsoft
 
@@ -36,14 +41,16 @@ Concept only. Microsoft and the application vendors must validate topology, envi
 5. Are the proposed GPU SKUs authorized and appropriately isolated at the required DoD impact level?
 6. Can AKS use RHEL 8.10 worker nodes, or is another supported OS or Kubernetes platform required?
 7. Can Microsoft provide a SCCA/SACA landing zone for GPU and Kubernetes workloads?
-8. Can ExpressRoute reuse existing provider infrastructure, subject to network approval?
-9. Can on-premises applications and databases communicate privately with the cloud workloads?
+8. What approved cloud access and private connectivity architecture supports the fully cloud-hosted applications without a permanent on-premises runtime dependency?
+9. Can all application databases, storage, source datasets, models, queues and runtime dependencies be hosted in Azure Government?
 10. How can Microsoft support and accelerate our workload ATO?
 11. What is the five-year total cost of both workloads?
 12. Can development/test GPU pools scale down when not used?
 13. Can Microsoft provide engineering resources and funding for a proof of concept?
 14. What are the known Azure Government AKS and GPU limitations?
-15. What is the realistic critical path to production readiness, including approvals?
+15. What is the realistic critical path to production readiness, including migration, cloud-only operational acceptance, recovery validation and approvals?
+16. Can both applications continue processing and operating if connectivity to the former data center is removed?
+17. Can a second authorized Azure Government region provide application-consistent disaster recovery without reliance on on-premises recovery systems?
 
 ## 4. GPU infrastructure and availability — critical
 
@@ -95,7 +102,9 @@ Request single-GPU and multi-GPU configurations. GPU model availability does not
 - Does Azure Blob Storage meet decoupled storage requirements, or is an S3-compatible layer needed?
 - What node-to-node throughput, storage IOPS and latency can be supported?
 - Which DataWalk components require GPUs, if any?
-- Can DataWalk securely connect to on-premises databases and source systems?
+- Which Azure-hosted database, search/index, messaging and storage components are vendor-supported for a complete DataWalk deployment?
+- Can all required datasets be copied or ingested into approved cloud storage, with external source feeds decoupled from runtime processing?
+- Can DataWalk operate and recover entirely in Azure after legacy infrastructure is disconnected?
 - How can datasets be migrated and integrity verified?
 - How are application-consistent backup and restore implemented?
 - Can compute and storage scale independently?
@@ -111,27 +120,42 @@ Request single-GPU and multi-GPU configurations. GPU model availability does not
 4. Which SKU is best for document processing and inference?
 5. Can the application operate in a restricted-network private cluster?
 6. Which database and persistent storage services are vendor-supported?
-7. Can documents remain on premises, or must copies be transferred for processing?
+7. Can all documents, training data, models, processing queues and output records be stored and processed within Azure Government?
+   - What cloud-hosted ingestion and export interfaces are supported?
+   - Can processing continue independently of the former data center?
 8. Can GPU training resources be provisioned on demand?
 9. How should existing server sizing translate into Kubernetes nodes and pods?
 10. How are models, processing data, configuration and databases backed up and restored?
 
 **Required:** Vendor-approved GPU, CUDA, OS, database, storage and Kubernetes compatibility matrix. Confirm application-version-specific VRAM and driver requirements.
 
-## 8. Hybrid networking
+## 8. Cloud networking, access and migration
 
-1. Can the existing network provider establish ExpressRoute in the appropriate government environment?
-2. Can approved physical infrastructure be reused without assuming the existing cloud circuit is transferable?
-3. What bandwidth is required based on representative document ingestion and processing?
-4. What are the costs and lead times for different ExpressRoute bandwidth tiers?
-5. What latency and throughput should we expect from our on-premises site?
-6. Can existing BCAP connectivity be leveraged subject to government approval?
-7. Can private DNS and private endpoints support all dependencies?
-8. Can existing AD and ADFS integrate with the government tenant?
-9. Can administrators reach private cluster endpoints from approved jump servers?
-10. How are TLS inspection, approved egress and centralized firewall policies enforced?
-11. What happens to the workloads if connectivity is lost?
-12. What is the cost and architecture for redundant circuits and failover?
+1. What SACA hub-and-spoke architecture and subscription structure are recommended for a cloud-only deployment?
+2. Can production, test and development be separated by subscription, VNet, cluster and security boundary?
+3. Can all workload components use private endpoints, private DNS and private service-to-service routing?
+4. Which approved government access boundary (including BCAP where applicable) is required for authorized users and administrators?
+5. How will cloud-resident directory services, workload identity, DNS and administrative access operate independently of the former data center?
+6. Can users access the applications through approved government network connectivity without exposing public workload endpoints?
+7. Can Azure Firewall or approved third-party controls enforce inspection, egress allowlists and east-west segmentation?
+8. What temporary approved connectivity and tools are recommended for migrating existing datasets, databases and images? Is ExpressRoute necessary or optional?
+9. What bandwidth, migration duration, transfer costs and integrity checks are expected?
+10. How can legacy data be synchronized for final cutover and how will migration paths be removed or restricted afterward?
+11. Can administrators use approved cloud-hosted management and jump services without relying on an on-premises jump server?
+12. How will vendor updates, container images, patches and license checks work within restricted government networking?
+13. Can both stacks continue processing during loss of connectivity to the former data center? How will we demonstrate this?
+14. What are the costs and availability of redundant cloud access, internal routing and security services?
+
+### Cloud-only backup, high availability and disaster recovery
+
+1. Which availability zones and secondary Azure Government regions support the required GPU, Kubernetes, database and storage services at the required impact level?
+2. Can we implement application-consistent backups of databases, indexes, documents, models, configuration and persistent volumes?
+3. What RPO/RTO can Microsoft and each vendor support? Provide estimates, assumptions and recovery test criteria.
+4. Can backups be immutable, isolated, encrypted and restored entirely within authorized cloud regions?
+5. How will recovery work if the primary region, AKS cluster, identity service or GPU capacity is unavailable?
+6. Can the recovery region reserve equivalent GPU capacity and support required vendor licenses?
+7. Can failover, failback and periodic recovery exercises be performed without on-premises infrastructure?
+8. What are the separate costs for zonal HA, cloud-to-cloud warm standby and backup-only recovery? Recommend a design based on business-approved RPO/RTO.
 
 ## 9. ATO, security and SCCA — critical
 
@@ -143,9 +167,9 @@ Request single-GPU and multi-GPU configurations. GPU model availability does not
 | Isolation | How do GPU worker nodes meet applicable isolation and encryption requirements? |
 | Encryption | Can storage, managed disks, registry and Kubernetes secrets use customer-managed keys where required? |
 | Endpoint | Can CrowdStrike protect supported worker nodes and container workloads? |
-| SIEM | Can Splunk receive the necessary Azure and Kubernetes security logs? |
+| SIEM | Can a cloud-hosted authorized Splunk or equivalent SIEM receive and retain the necessary Azure and Kubernetes logs without an on-premises collector dependency? |
 | Vulnerability | Can ACAS/Nessus and existing tools be integrated? |
-| Identity | Can CAC/PIV, YubiKey, least privilege and privileged access controls be retained? |
+| Identity | Can approved cloud-resident identity, CAC/PIV or YubiKey, least privilege and privileged access operate without on-premises AD/ADFS dependencies? |
 | Logging | Can security logs use immutable retention policies? |
 | Supply chain | How are vendor images scanned, signed, approved and mirrored? |
 | Monitoring | Can compliance evidence and configuration drift be collected automatically? |
@@ -167,10 +191,12 @@ Request a bill of materials with monthly, annual and five-year estimates. Normal
 | Container registry | TBD | TBD | TBD |
 | Database services | TBD | TBD | TBD |
 | Object and block storage | TBD | TBD | TBD |
-| ExpressRoute and carrier costs | TBD | TBD | TBD |
+| Government user access / cloud connectivity | TBD | TBD | TBD |
+| Temporary migration connectivity and transfer (one-time) | TBD | TBD | TBD |
+| Cloud-resident identity, DNS and management | TBD | TBD | TBD |
 | Firewall and networking | TBD | TBD | TBD |
 | Security and logging | TBD | TBD | TBD |
-| Backup and recovery | TBD | TBD | TBD |
+| Backup, high availability and cloud-to-cloud DR | TBD | TBD | TBD |
 | RHEL and application/software licenses | TBD | TBD | TBD |
 | Microsoft support | TBD | TBD | TBD |
 | Migration and implementation | TBD | TBD | TBD |
@@ -188,7 +214,9 @@ Request pay-as-you-go, one-year and three-year commitment scenarios; separately 
 - [ ] Deploy private Kubernetes and CPU/GPU node pools.
 - [ ] Deploy DataWalk development and Hyperscience test workloads.
 - [ ] Benchmark representative ingestion, training, inference, storage and network performance.
-- [ ] Validate security controls, backup/restore and ATO gaps.
+- [ ] Validate security controls, cloud-resident identity, backup/restore and ATO gaps.
+- [ ] Demonstrate both application stacks run independently of the former data center; inventory and eliminate any required on-premises runtime dependency.
+- [ ] Validate cloud-to-cloud recovery and document RPO/RTO, migration cutover and rollback.
 - [ ] Complete normalized five-year TCO and recommendation.
 
 ## 12. Proposed implementation phases
@@ -200,7 +228,8 @@ Request pay-as-you-go, one-year and three-year commitment scenarios; separately 
 | 3 | Landing zone and POC | Approved connectivity and test environment |
 | 4 | Application deployment and benchmarking | Vendor and performance acceptance |
 | 5 | Security evidence and ATO readiness | Authorizing official review |
-| 6 | Production deployment | ATO and operational readiness approved |
+| 6 | Complete cloud migration, cutover and operational handoff | ATO, independent cloud operation and recovery acceptance approved |
+| 7 | Legacy workload retirement | Retention, rollback window, migration acceptance and decommission approvals satisfied |
 
 Ask Microsoft to estimate duration, dependencies, staffing and contingency for each phase. No production date is assumed.
 
@@ -212,7 +241,7 @@ Ask Microsoft to estimate duration, dependencies, staffing and contingency for e
 | 10 min | Azure Government and compliance |
 | 15 min | GPU availability and AKS |
 | 10 min | DataWalk and Hyperscience |
-| 5 min | Hybrid networking |
+| 5 min | Cloud networking, migration and recovery |
 | 10 min | Pricing and timeline |
 | 5 min | Deliverables and next steps |
 
@@ -230,8 +259,10 @@ Ask Microsoft to estimate duration, dependencies, staffing and contingency for e
 1. GPU availability, guaranteed capacity and compliant isolation.
 2. RHEL and Kubernetes compatibility.
 3. Written DataWalk and Hyperscience vendor support.
-4. Approved network connectivity and acceptable five-year TCO.
+4. Complete cloud-resident runtime, approved cloud access, validated cloud recovery and acceptable five-year TCO.
 5. A realistic, documented path to workload ATO.
+
+6. Cloud-only operation proven without former data center dependencies; approved migration and retirement plan.
 
 Do not commit to production infrastructure before resolving these gates. Request a written architecture, service authorization matrix, GPU capacity quote, vendor-approved sizing, POC scope, cost model and implementation schedule.
 
