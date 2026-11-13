@@ -23,7 +23,7 @@
 
 ## 2. Conceptual architecture
 
-**Editable architecture diagram:** [Download the Draw.io file](./azure-government-scenario-c.drawio). Open the file in [diagrams.net](https://app.diagrams.net/) or Draw.io Desktop. No Mermaid renderer is required.
+**Editable architecture diagram:** [Download the raw Draw.io file](https://raw.githubusercontent.com/oci-appdev/scca/main/docs/azure-government-scenario-c.drawio). Save it with the `.drawio` extension, then open it using **File > Open From > Device** in [diagrams.net](https://app.diagrams.net/) or Draw.io Desktop. Do not save the GitHub HTML preview page as a diagram. No Mermaid renderer is required.
 
 Concept only. Microsoft and the application vendors must validate topology, environment segregation, service authorization, data flows, and operational responsibilities.
 
