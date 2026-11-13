@@ -234,3 +234,7 @@ Ask Microsoft to estimate duration, dependencies, staffing and contingency for e
 5. A realistic, documented path to workload ATO.
 
 Do not commit to production infrastructure before resolving these gates. Request a written architecture, service authorization matrix, GPU capacity quote, vendor-approved sizing, POC scope, cost model and implementation schedule.
+
+## Companion commercial questionnaire
+
+- [Microsoft Azure Government — Account Executive Discovery Questions](./azure-government-scenario-c-account-executive-questions.md)
