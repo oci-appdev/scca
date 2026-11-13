@@ -23,15 +23,7 @@
 
 ## 2. Conceptual architecture
 
-```mermaid
-flowchart TD
-    A["On-premises systems / identity / source data"] --> E["ExpressRoute / approved boundary connectivity"]
-    E --> H["Azure Government SACA hub: gateway, firewall, DNS"]
-    H --> D["DataWalk spoke: private AKS / CPU and GPU pools"]
-    H --> S["Hyperscience spoke: private AKS / CPU and GPU pools"]
-    D --> P["Approved shared services: registry, storage, key management, logging"]
-    S --> P
-```
+**Editable architecture diagram:** [Download the Draw.io file](./azure-government-scenario-c.drawio). Open the file in [diagrams.net](https://app.diagrams.net/) or Draw.io Desktop. No Mermaid renderer is required.
 
 Concept only. Microsoft and the application vendors must validate topology, environment segregation, service authorization, data flows, and operational responsibilities.
 
