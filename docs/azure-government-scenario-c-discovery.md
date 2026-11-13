@@ -32,7 +32,7 @@
 
 Concept only. All application runtime components reside in Azure Government. External user access is not a hosting dependency. Microsoft and the vendors must validate topology, environment segregation, service authorization, data flows, cloud-resident identity and operational responsibilities.
 
-## 3. Top 15 questions for Microsoft
+## 3. Top 17 questions for Microsoft
 
 1. Can Azure Government support both applications in a fully private Kubernetes environment?
 2. Which region provides the required GPU availability, AKS capabilities and compliance?
