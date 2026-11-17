@@ -269,3 +269,4 @@ Do not commit to production infrastructure before resolving these gates. Request
 ## Companion commercial questionnaire
 
 - [Microsoft Azure Government — Account Executive Discovery Questions](./azure-government-scenario-c-account-executive-questions.md)
+- [Strategic white paper — Azure Government vs. OCI Government](./azure-government-vs-oci-white-paper.md)
