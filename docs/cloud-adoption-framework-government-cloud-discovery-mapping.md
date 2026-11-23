@@ -221,3 +221,8 @@ The **primary phase** indicates where evidence is initially collected; questions
 - [Microsoft CAF overview — seven phases](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/overview)
 - [Microsoft CAF Plan — operating models, migration assessment and responsibilities](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/plan/prepare-organization-for-cloud)
 - [Microsoft CAF Secure — security spans all phases](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/secure/overview)
+
+
+## Additional framework: AWS CAF Platform perspective (2026-11-23)
+
+The cross-provider assessment now incorporates the AWS CAF **six perspectives** and the **seven Platform capabilities**, using its **Start / Advance / Excel** progression for maturity tracking. See the separate [AWS CAF Platform perspective integration](aws-caf-platform-perspective-integration.md) for scope, maturity definitions, government-cloud hard gates, and alignment to the existing 136 discovery questions. The companion Excel workbook includes 63 assessable evidence checks. No application answers, maturity gates, ATO approval or provider selection are implied by this framework mapping.
